@@ -37,8 +37,8 @@ func (t Task) Description() string {
 
 // Model
 type Model struct {
-	list list.Model
-	err  error
+	lists []list.Model
+	err   error
 }
 
 func New() *Model {
@@ -47,12 +47,25 @@ func New() *Model {
 
 // TODO: Call this on tea.WindowSizeMsg
 func (m *Model) initList(width, height int) {
-	m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
-	m.list.Title = "To do"
-	m.list.SetItems([]list.Item{
+	defaultList := list.New([]list.Item{}, list.NewDefaultDelegate(), width, height)
+	m.lists = []list.Model{defaultList, defaultList, defaultList}
+	m.lists[todo].Title = "To do"
+	m.lists[todo].SetItems([]list.Item{
 		Task{status: todo, title: "coding practice", desc: "oauth practice"},
 		Task{status: todo, title: "struct odroid", desc: "odroid -n2"},
 		Task{status: todo, title: "fold laundry", desc: "shirts"},
+	})
+	m.lists[inprogress].Title = "In progress"
+	m.lists[inprogress].SetItems([]list.Item{
+		Task{status: inprogress, title: "coding practice", desc: "oauth practice"},
+		Task{status: inprogress, title: "struct odroid", desc: "odroid -n2"},
+		Task{status: inprogress, title: "fold laundry", desc: "shirts"},
+	})
+	m.lists[done].Title = "Done"
+	m.lists[done].SetItems([]list.Item{
+		Task{status: done, title: "coding practice", desc: "oauth practice"},
+		Task{status: done, title: "struct odroid", desc: "odroid -n2"},
+		Task{status: done, title: "fold laundry", desc: "shirts"},
 	})
 }
 
@@ -66,12 +79,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.initList(msg.Width, msg.Height)
 	}
 	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
+	m.lists, cmd = m.lists.Update(msg)
 	return m, cmd
 }
 
 func (m Model) View() string {
-	return m.list.View()
+	return m.lists.View()
 }
 
 func main() {
